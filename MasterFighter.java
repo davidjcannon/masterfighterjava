@@ -88,18 +88,21 @@ public class MasterFighter {
         ArrayList<Fighter> fighters = new ArrayList<>();
 
         // Loads fighters
-        fighters.add(new Fighter((fighters.size()+1), "Weakling", 80, 1, 1, 20, 4, 200));
+        fighters.add(new Fighter( "Weakling", 80, 1, 1, 20, 4, 200));
         // Cuts off at lvl 3
-        fighters.add(new Fighter((fighters.size()+1), "Normal",1,1,1, 24,4,100));
+        fighters.add(new Fighter( "Normal",1,1,1, 24,4,100));
         // Level 1 Classes ^^ (Cuts off at level 6)
-        fighters.add(new Fighter((fighters.size()+1), "Berserker (Young)", 90, 2, 1,28,5,26));
+        fighters.add(new Fighter("Berserker (Young)", 90, 2, 1,28,5,26));
         // Level 2 Classes ^^ (Cuts off at level 8)
-        fighters.add(new Fighter((fighters.size()+1), "Fighter", 150, 2, 1,24,5,34));
+        fighters.add(new Fighter("Fighter", 150, 2, 1,24,5,34));
         // Level 4 Classes ^^
-        fighters.add(new Fighter((fighters.size()+1), "Tank", 200, 1, 1,28,7,30));
-        fighters.add(new Fighter((fighters.size()+1), "Berserker", 1, 3, 1,32,8, 20));
-        fighters.add(new Fighter((fighters.size()+1), "Speedy", 1, 1, 2,26,7, 30));
-        fighters.add(new Fighter((fighters.size()+1), "Mage", 120, 1, 1,30,9,24));
+        fighters.add(new Fighter("Tank", 200, 1, 1,28,7,30));
+        fighters.add(new Fighter("Berserker", 1, 3, 1,32,8, 20));
+        // Level 5 Classes ^^
+        fighters.add(new Fighter("Speedy", 1, 1, 2,26,7, 30));
+        // (Cuts off at level 9) ^^
+        fighters.add(new Fighter("Mage", 120, 1, 1,30,9,24));
+        // Level 6 Classes ^^
 
         // 8 CLASSES ATM
 
@@ -500,7 +503,6 @@ public class MasterFighter {
     }
 
     public static class Fighter {
-        int classID;
         int cpuhealthlvl;
         int cpudamagelevel;
         int cpuspeedlevel;
@@ -509,30 +511,7 @@ public class MasterFighter {
         int nerfxp;
         int crit;
 
-        public Fighter() {
-            this.classID = 0;
-            this.cpuhealthlvl = 1;
-            this.cpudamagelevel = 1;
-            this.cpuspeedlevel = 1;
-            this.classname = "Unnamed Class";
-            this.givexp = 0;
-            this.nerfxp = 0;
-            this.crit = 9999;
-        }
-
-        public Fighter(int classID, String classname) {
-            this.classID = classID;
-            this.cpuhealthlvl = 1;
-            this.cpudamagelevel = 1;
-            this.cpuspeedlevel = 1;
-            this.classname = classname;
-            this.givexp = 0;
-            this.nerfxp = 0;
-            this.crit = 9999;
-        }
-
-        public Fighter(int classID, String classname, int cpuhealthlvl, int cpudamagelevel, int cpuspeedlevel, int givexp, int nerfxp, int crit) {
-            this.classID = classID;
+        public Fighter(String classname, int cpuhealthlvl, int cpudamagelevel, int cpuspeedlevel, int givexp, int nerfxp, int crit) {
             this.cpuhealthlvl = cpuhealthlvl;
             this.cpudamagelevel = cpudamagelevel;
             this.cpuspeedlevel = cpuspeedlevel;
