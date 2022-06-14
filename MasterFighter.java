@@ -130,7 +130,7 @@ public class MasterFighter {
         int cpumaxhealth = SetHealth(cpustats.cpuhealthlvl);
 
         int health = maxhealth;
-        int cpuhealth = cpumaxhealth;
+        int cpuHealth = cpumaxhealth;
 
         int gamedamagelevel = damagelevel;
         int cpudamagelevel = cpustats.cpudamagelevel;
@@ -138,15 +138,12 @@ public class MasterFighter {
         int gamespeedlevel = speedlevel;
         int cpuspeedlevel = cpustats.cpuspeedlevel;
         // Sets base levels
-        boolean cpuCountered = false;
-        boolean cpuCountered2 = false;
-        boolean countered = false;
-        boolean countered2 = false;
+        boolean[] cpuCountered = {false, false};
+        boolean[] countered = {false, false};
         // Sets base give XP
         int givexp = SetGiveXP(cpustats.givexp, cpustats.nerfxp);
         int refreshed = 0;
-        int sameattack = 0;
-        int sameattack2 = 0;
+        int[] sameattack = {0,0};
 
         // Everything related to stuns
         int stunRange = 0;
@@ -184,16 +181,17 @@ public class MasterFighter {
         int cpuStunResist = level/3;
 
         // Move variables
-        int move = 0;
-        int move2 = 0;
-        int pMove = 0;
-        int pMove2 = 0;
-        int cpuMove = 0;
-        int cpuMove2 = 0;
-        boolean backMove = true;
-        boolean cpubackMove = true;
-        boolean backMove2 = true;
-        boolean cpubackMove2 = true;
+        int[] move = {0,0};
+        int[] pMove = {0,0};
+        int[] cpuMove = {0,0};
+        boolean[] backMove = {true, true};
+        boolean[] cpuBackMove = {true, true};
+
+        String className = cpustats.classname;
+        int[] specialMoves = {0,0};
+        boolean cpucb = true;
+        if (className.equals("Mage"))
+            cpucb = false;
         // Variables: Don't change ^^
         // Game = 0 means no one won yet, 1 means the player won, 2 means CPU Won, 3 means a tie
         int game = 0;
@@ -207,22 +205,21 @@ public class MasterFighter {
             if (cpuCrit==1) consoleColor('d');
             if (cpuStunRange != 0 || stunRange != 0) consoleColor('b');
 
-            move = 0;
-            move2 = 0;
+            Arrays.fill(move, 0);
 
             // Checks win conditions
-            if (health < 1 && cpuhealth < 1)
+            if (health < 1 && cpuHealth < 1)
                 game = 3;
             else if (health < 1)
                 game = 2;
-            else if (cpuhealth < 1)
+            else if (cpuHealth < 1)
                 game = 1;
 
             // Prevents health from going into the negatives
             if (health < 0)
                 health = 0;
-            if (cpuhealth < 0)
-                cpuhealth = 0;
+            if (cpuHealth < 0)
+                cpuHealth = 0;
 
             // Determines whether the damage values have been refreshed yet
             // They must be refreshed because later in the game your damage values may change mid-battle
@@ -241,7 +238,7 @@ public class MasterFighter {
             if (cpuDamage > 0)
             System.out.print(" (Damage Taken: " + cpuDamage + ")");
             System.out.println();
-            System.out.print("Opponent Health: " + cpuhealth);
+            System.out.print("Opponent Health: " + cpuHealth);
             if (damage > 0)
             System.out.print(" (Damage Taken: " + damage + ")");
             System.out.println();
@@ -259,11 +256,14 @@ public class MasterFighter {
             if (damage > 0 && crit == 1) System.out.println("YOU CRIT (2X DAMAGE)");
             if (cpuDamage > 0 && cpuCrit == 1) System.out.println("YOUR OPPONENT CRIT (2X DAMAGE)");
 
-            if (!cpuCountered && stunRange == 0 && pMove != 0) BuildBattleText(0, pMove, backMove, countered);
-            if (!countered && cpuStunRange == 0 && cpuMove != 0) BuildBattleText(1, cpuMove, cpubackMove, cpuCountered);
+            if (!cpuCountered[0] && stunRange == 0 && pMove[0] != 0) BuildBattleText(0, pMove[0], backMove[0], countered[0]);
+            if (!countered[0] && cpuStunRange == 0 && cpuMove[0] != 0) BuildBattleText(1, cpuMove[0], cpuBackMove[0], cpuCountered[0]);
 
-            if (!cpuCountered2 && stunRange == 0 && pMove2 != 0) BuildBattleText(2, pMove2, backMove2, countered2);
-            if (!countered2 && cpuStunRange == 0 && cpuMove2 != 0) BuildBattleText(3, cpuMove2, cpubackMove2, cpuCountered2);
+            if (!cpuCountered[1] && stunRange == 0 && pMove[1] != 0) BuildBattleText(2, pMove[1], backMove[1], countered[1]);
+            if (!countered[1] && cpuStunRange == 0 && cpuMove[1] != 0) BuildBattleText(3, cpuMove[1], cpuBackMove[1], cpuCountered[1]);
+
+            // Shows special ability text
+            if (specialMoves[0] == 1 || specialMoves[1] == 1) AbilityText(className, specialMoves);
 
             if (cpuStunRange != 0) System.out.println("OPPONENT STUNNED!");
 
@@ -271,13 +271,13 @@ public class MasterFighter {
             {
                 if (stunRange == 0) {
                     playerInput = input.nextLine();
-                    move = playerMove(playerInput, pMove);
+                    move[0] = playerMove(playerInput, pMove[0]);
 
                     // Allows you to use speed 2
-                    if (move != 0 && gamespeedlevel >= 2) {
+                    if (move[0] != 0 && gamespeedlevel >= 2) {
                         System.out.println("Now enter your second move!");
                         playerInput = input.nextLine();
-                        move2 = playerMove(playerInput, pMove2);
+                        move[1] = playerMove(playerInput, pMove[1]);
                     }
                 }
                 else
@@ -285,8 +285,7 @@ public class MasterFighter {
                     timeout(2000);
                     System.out.println("STUNNED");
                         timeout(1500);
-                    move = 0;
-                    move2 = 0;
+                    Arrays.fill(move, 0);
                 }
             }
 
@@ -316,57 +315,66 @@ public class MasterFighter {
                 break;
             }
 
-            if (move != 0 || stunRange != 0)
+            // Checks if moves are valid
+            int valid = 0;
+            if ((move[0] >= 1 && move[0] <= 8) || stunRange != 0)
+                valid++;
+
+            if (gamespeedlevel >= 2)
+                if ((move[1] >= 1 && move[1] <= 8) || stunRange != 0)
+                    valid++;
+
+            if (valid == gamespeedlevel)
             {
                 // Resets values and gives new randoms
-                cpuMove = 0;
-                cpuMove2 = 0;
+                Arrays.fill(cpuMove,0);
                 damage = 0;
                 cpuDamage = 0;
                 crit = 0;
                 cpuCrit = 0;
-                backMove = rand.nextBoolean();
-                cpubackMove = rand.nextBoolean();;
-                backMove2 = rand.nextBoolean();
-                cpubackMove2 = rand.nextBoolean();
+                Arrays.fill(specialMoves, 0);
+                backMove[0] = rand.nextBoolean();
+                backMove[1] = rand.nextBoolean();
+                cpuBackMove[0] = rand.nextBoolean();
+                cpuBackMove[1] = rand.nextBoolean();
 
                 // Gets CPU moves
                 if (cpuStunRange == 0) {
-                    cpuMove = getCpuMove(sameattack, pMove, stunRange);
+                    cpuMove[0] = getCpuMove(sameattack[0], pMove[0], stunRange, cpucb);
                     if (cpuspeedlevel > 1)
-                        cpuMove2 = getCpuMove(sameattack2, pMove2, stunRange);
+                        cpuMove[1] = getCpuMove(sameattack[1], pMove[1], stunRange, cpucb);
                 }
 
                 if (cpuStunRange == 0) {
                     // CPU AI that detects repeat moves
-                    if (pMove != 0 && pMove == move)
-                        sameattack++;
-                    if (pMove2 != 0 && pMove2 == move2)
-                        sameattack2++;
+                    if (pMove[0] != 0 && pMove[0] == move[0])
+                        sameattack[0]++;
+                    if (pMove[1] != 0 && pMove[1] == move[1])
+                        sameattack[1]++;
 
                     // Removes this angro if you change your moves
-                    if (pMove != 0 && pMove != move)
-                        sameattack -= 4;
-                    if (pMove2 != 0 && pMove2 != move2)
-                        sameattack2 -= 4;
+                    if (pMove[0] != 0 && pMove[0] != move[0])
+                        sameattack[0] -= 4;
+                    if (pMove[1] != 0 && pMove[1] != move[1])
+                        sameattack[1] -= 4;
                 }
 
                 // Sets previous move
-                pMove = move;
-                pMove2 = move2;
+                pMove[0] = move[0];
+                pMove[1] = move[1];
 
                 // Gives XP for current attack
-                givexp += GiveXP(move);
+                givexp += GiveXP(move[0]);
                 if (gamespeedlevel > 1)
-                givexp += (GiveXP(move2))/2;
+                givexp += (GiveXP(move[1]))/2;
 
                 // Determines whether the computer countered you
-                countered = Countered(move, cpuMove);
-                countered2 = Countered(move2, cpuMove2);
+                countered[0] = Countered(move[0], cpuMove[0]);
+                countered[1] = Countered(move[1], cpuMove[1]);
 
                 // Determines whether you countered the computer
-                cpuCountered = Countered(cpuMove, move);
-                cpuCountered2 = Countered(cpuMove2, move2);
+                cpuCountered[0] = Countered(cpuMove[0], move[0]);
+                cpuCountered[1] = Countered(cpuMove[1], move[1]);
 
                 // STUNS:
 
@@ -380,14 +388,46 @@ public class MasterFighter {
 
                 // Attempts to stun cpu if not already stunned, as long as not countered. Prevents chain stuns
                 if (stunRange == 0 && cpuStunRange == 0) {
-                    cpuStunRange = calcStun(move, cpuStunRange, countered, cpuStunResist);
-                    cpuStunRange = calcStun(move2, cpuStunRange, countered2, cpuStunResist);
+                    cpuStunRange = calcStun(move[0], cpuStunRange, countered[0], cpuStunResist);
+                    cpuStunRange = calcStun(move[1], cpuStunRange, countered[1], cpuStunResist);
+                }
+
+                // This NEEDS to be placed here or else the Mage can get a stun when using fireball
+                if (className.equals("Mage") && cpuStunRange == 0)
+                {
+                    int range = 7;
+
+                    // If health is lower the CPU is more likely to use special ability
+                    if (cpuHealth <= 90)
+                        range -= 2;
+                    if (cpuHealth <= 36)
+                        range--;
+
+                    specialMoves[0] = rand.nextInt(range)+1;
+                    specialMoves[1] = rand.nextInt(30)+1;
+
+                    if (sameattack[0] >= 2 || sameattack[1] >= 2)
+                        specialMoves[1] = 1;
+
+                    // Fireball ability
+                    if (specialMoves[0] == 1) {
+                        Arrays.fill(cpuMove,0);
+                        cpuDamage += 12;
+                        if (cpuHealth <= 36)
+                            cpuDamage += 12;
+                    }
+
+                    // Lightning strike ability
+                    if (specialMoves[1] == 1) {
+                        Arrays.fill(cpuMove,0);
+                        cpuDamage += 50;
+                    }
                 }
 
                 // Attempts to stun you if not already stunned, as long as not countered. Prevents chain stuns
                 if (stunRange == 0 && cpuStunRange == 0) {
-                    stunRange = calcStun(cpuMove, stunRange, cpuCountered, stunResist);
-                    stunRange = calcStun(cpuMove2, stunRange, cpuCountered2, stunResist);
+                    stunRange = calcStun(cpuMove[0], stunRange, cpuCountered[0], stunResist);
+                    stunRange = calcStun(cpuMove[1], stunRange, cpuCountered[1], stunResist);
                 }
 
                 // Removes the stunned status effect from players
@@ -403,14 +443,10 @@ public class MasterFighter {
 
                 // Preforms stun action
 
-                if (stunRange != 0) {
-                    move = 0;
-                    move2 = 0;
-                }
-                if (cpuStunRange != 0) {
-                    cpuMove = 0;
-                    cpuMove2 = 0;
-                }
+                if (stunRange != 0)
+                    Arrays.fill(move,0);
+                if (cpuStunRange != 0)
+                    Arrays.fill(cpuMove,0);
 
                 // ADD: Special ability stuns here
 
@@ -426,23 +462,16 @@ public class MasterFighter {
 
                 // Hit reg
 
-                damage += HitReg(move, facedmg, chestdmg, sweepdmg, backdmg, backfaildmg, countered, cpuCountered, backMove, cpubackMove);
-                if (gamespeedlevel > 1)
-                damage += HitReg(move2, facedmg, chestdmg, sweepdmg, backdmg, backfaildmg, countered2, cpuCountered2, backMove2, cpubackMove2);
-                cpuDamage += HitReg(cpuMove, cpufacedmg, cpuchestdmg, cpusweepdmg, cpubackdmg, cpubackfaildmg, cpuCountered, countered, cpubackMove, backMove);
-                if (cpuspeedlevel > 1)
-                    cpuDamage += HitReg(cpuMove2, cpufacedmg, cpuchestdmg, cpusweepdmg, cpubackdmg, cpubackfaildmg, cpuCountered2, countered2, cpubackMove2, backMove2);
+                damage += HitReg(move, facedmg, chestdmg, sweepdmg, backdmg, backfaildmg, countered, cpuCountered, backMove, cpuBackMove);
+                cpuDamage += HitReg(cpuMove, cpufacedmg, cpuchestdmg, cpusweepdmg, cpubackdmg, cpubackfaildmg, cpuCountered, countered, cpuBackMove, backMove);
 
                 // HitReg can only calculate damage you do to the opponent so this is needed to damage yourself when a failed backmove happens
-                if (move == 4 && !backMove)
-                    cpuDamage += backfaildmg;
-                if (cpuMove == 4 && !cpubackMove)
-                    damage += cpubackfaildmg;
-                // Speed 2
-                if (move2 == 4 && !backMove2)
-                    cpuDamage += backfaildmg;
-                if (cpuMove2 == 4 && !cpubackMove2)
-                    damage += cpubackfaildmg;
+                for (int i = 0; i < 2; i++) {
+                    if (move[i] == 4 && !backMove[i])
+                        cpuDamage += backfaildmg;
+                    if (cpuMove[i] == 4 && !cpuBackMove[i])
+                        damage += cpubackfaildmg;
+                }
 
                 // Determines whether a crit can apply
                 if (damage > 0 && stunRange == 0)
@@ -459,7 +488,7 @@ public class MasterFighter {
                     cpuDamage *= 2;
 
                 health -= cpuDamage;
-                cpuhealth -= damage;
+                cpuHealth -= damage;
 
                 refreshed = 0;
             } else {
@@ -514,48 +543,51 @@ public class MasterFighter {
         }
     }
 
-    static int HitReg(int move, int facedmg, int chestdmg, int sweepdmg, int backdmg, int backfaildmg,
-                      boolean countered, boolean otherCountered, boolean backMove, boolean otherbackMove) {
+    static int HitReg(int[] move, int facedmg, int chestdmg, int sweepdmg, int backdmg, int backfaildmg,
+                      boolean[] countered, boolean[] otherCountered, boolean[] backMove, boolean[] otherbackMove) {
         int damage = 0;
-        if (!countered) {
-            switch (move) {
-                case 1:
-                    damage += facedmg;
-                    break;
-                case 2:
-                    damage += chestdmg;
-                    break;
-                case 3:
-                    damage += sweepdmg;
-                    break;
-                case 4:
-                    if (backMove)
-                        damage += backdmg;
-                    break;
+        for (int i = 0; i < 2; i++)
+            if (move[i] != 0) {
+                if (!countered[i]) {
+                    switch (move[i]) {
+                        case 1:
+                            damage += facedmg;
+                            break;
+                        case 2:
+                            damage += chestdmg;
+                            break;
+                        case 3:
+                            damage += sweepdmg;
+                            break;
+                        case 4:
+                            if (backMove[i])
+                                damage += backdmg;
+                            break;
 
+                    }
+                }
+
+                if (otherCountered[i]) {
+                    switch (move[i]) {
+                        case 5:
+                            damage += facedmg * 2;
+                            break;
+                        case 6:
+                            damage += chestdmg * 2;
+                            break;
+                        case 7:
+                            damage += sweepdmg * 2;
+                            break;
+                        case 8:
+                            if (otherbackMove[i])
+                                damage += backdmg * 2;
+                            else
+                                damage += backfaildmg * 2;
+                            break;
+
+                    }
+                }
             }
-        }
-
-        if (otherCountered) {
-            switch (move) {
-                case 5:
-                    damage += facedmg * 2;
-                    break;
-                case 6:
-                    damage += chestdmg * 2;
-                    break;
-                case 7:
-                    damage += sweepdmg * 2;
-                    break;
-                case 8:
-                    if (otherbackMove)
-                        damage += backdmg * 2;
-                    else
-                        damage += backfaildmg * 2;
-                    break;
-
-            }
-        }
         return damage;
     }
 
@@ -895,6 +927,14 @@ public class MasterFighter {
         System.out.println();
     }
 
+    static void AbilityText(String className, int[] specialMoves)
+    {
+        if (className.equals("Mage")) {
+            if (specialMoves[0] == 1) System.out.println("Your opponent used their special ability \"Fireball\"! (12 DMG, DOUBLES ON LOW HP)");
+            if (specialMoves[1] == 1) System.out.println("Your opponent used a special attack \"Lightning Strike\"! (50 DMG)");
+        }
+    }
+
     // Menu elements
     static void menuText(String textString, int dmg) {
         System.out.print(textString);
@@ -955,27 +995,31 @@ public class MasterFighter {
         return move;
     }
 
-    static int getCpuMove(int sameattack, int pMove, int stunRange)
+    static int getCpuMove(int sameattack, int pMove, int stunRange, boolean canBlock)
     {
         Random rand = new Random();
         int cpuMove = 0;
         // CPU AI that responds to repeat moves
 
         if (stunRange == 0) {
-            cpuMove = rand.nextInt(8) + 1;
-            int think = 0;
-            int thinkRange = (5 - (sameattack - 3));
-            if (thinkRange < 2)
-                thinkRange = 2;
-            if (sameattack >= 3)
-                think = rand.nextInt(thinkRange) + 1;
-            if (think == 1)
-                if (pMove <= 4)
-                    cpuMove = pMove + 4;
-                else if (pMove == 5)
-                    cpuMove = 2;
-                else
-                    cpuMove = 1;
+            if (canBlock) {
+                cpuMove = rand.nextInt(8) + 1;
+                int think = 0;
+                int thinkRange = (5 - (sameattack - 3));
+                if (thinkRange < 2)
+                    thinkRange = 2;
+                if (sameattack >= 3)
+                    think = rand.nextInt(thinkRange) + 1;
+                if (think == 1)
+                    if (pMove <= 4)
+                        cpuMove = pMove + 4;
+                    else if (pMove == 5)
+                        cpuMove = 2;
+                    else
+                        cpuMove = 1;
+            }
+            else
+                cpuMove = rand.nextInt(4) + 1;
         } else
             cpuMove = 1;
 
