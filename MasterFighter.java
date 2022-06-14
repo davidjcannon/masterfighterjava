@@ -248,8 +248,7 @@ public class MasterFighter {
             menuText("Enter \"Face\" to hit your opponent in the face", facedmg);
             menuText("Enter \"Chest\" to hit your opponent in the chest", chestdmg);
             menuText("Enter \"Sweep\" to sweep your opponent", sweepdmg);
-            menuText("Enter \"Back\" to attempt a back attack", 0);
-            System.out.println("(" + backdmg + " DMG / " + backfaildmg + " FAILED DMG)");
+            menuText("Enter \"Back\" to attempt a back attack", backdmg,backfaildmg);
             menuText("Enter \"Blockface\" to counter a face attack", facedmg * 2);
             menuText("Enter \"Blockchest\" to counter a chest attack", chestdmg * 2);
             menuText("Enter \"Blocksweep\" to counter a sweep", sweepdmg * 2);
@@ -277,8 +276,10 @@ public class MasterFighter {
                     // Allows you to use speed 2
                     if (gamespeedlevel > 2) {
                         playerInput = input.nextLine();
-                        if (move != 0)
+                        if (move != 0) {
+                            System.out.println("Now enter your second move!");
                             move2 = playerMove(playerInput, pMove);
+                        }
                     }
                 }
                 else
@@ -712,6 +713,8 @@ public class MasterFighter {
                 Upgrade(playerInput, damageUpgradeCost);
             else if (playerInput.equals("health") && points >= healthUpgradeCost)
                 Upgrade(playerInput, healthUpgradeCost);
+            else if (playerInput.equals("speed") && points >= 2)
+                Upgrade(playerInput, 2);
             else if (playerInput.equals("exit"))
                 break;
             else {
@@ -727,6 +730,8 @@ public class MasterFighter {
             healthlevel++;
         else if (upgrade.equals("damage"))
             damagelevel++;
+        else if (upgrade.equals("speed"))
+            speedlevel++;
         points -= cost;
     }
 
@@ -898,12 +903,27 @@ public class MasterFighter {
         spacing(textString, dmg);
         return;
     }
+
+    // This method is exclusively for back attack text
+    static void menuText(String textString, int dmg, int dmg2) {
+        System.out.print(textString);
+        int stringLength = 98 - textString.length();
+        if (dmg > 9)
+            stringLength--;
+        if (dmg2 > 9)
+            stringLength--;
+        for (int i = 0; i < stringLength; i++) {
+            System.out.print(" ");
+        }
+            System.out.print("(" + dmg + " DMG / ");
+        System.out.println(dmg2 + " FAILED DMG)");
+        return;
+    }
+
     static void spacing(String gameString, int dmg) {
         int stringLength = 113 - gameString.length();
         if (dmg > 9)
             stringLength--;
-        else if (dmg == 0)
-            stringLength -= 16;
         for (int i = 0; i < stringLength; i++) {
             System.out.print(" ");
         }
