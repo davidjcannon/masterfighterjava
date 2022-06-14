@@ -274,12 +274,10 @@ public class MasterFighter {
                     move = playerMove(playerInput, pMove);
 
                     // Allows you to use speed 2
-                    if (gamespeedlevel > 2) {
+                    if (move != 0 && gamespeedlevel >= 2) {
+                        System.out.println("Now enter your second move!");
                         playerInput = input.nextLine();
-                        if (move != 0) {
-                            System.out.println("Now enter your second move!");
-                            move2 = playerMove(playerInput, pMove);
-                        }
+                        move2 = playerMove(playerInput, pMove2);
                     }
                 }
                 else
